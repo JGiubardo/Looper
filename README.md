@@ -1,6 +1,7 @@
 # Looper
 A script for repeating music seamlessly and endlessly,
-designed with video game music in mind.
+designed with video game music in mind.  This has been modified to output a text file with loop points, 
+instead of playing the file.
 
 ## Installation
 This script requires Python 3 to run, along with the NumPy and mpg123 packages.

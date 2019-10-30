@@ -120,7 +120,7 @@ class MusicFile:
                     best_end = end
                     max_corr = sc
 
-        return (best_start, best_end, max_corr)
+        return best_start, best_end, max_corr
 
     def time_of_frame(self, frame):
         samples_per_sec = self.rate * self.channels
@@ -136,42 +136,34 @@ class MusicFile:
                 time_sec % 60
                 )
 
-    def play_looping(self, start_offset, loop_offset):
-        out = Out123()
-        out.start(self.rate, self.channels, self.encoding)
-        i = 0
+    @staticmethod
+    def write_points_to_file(start_offset, loop_offset):
+        with open("loop_points.txt","w+") as output:
+            output.write("%d\r\n" % start_offset)
+            output.write("%d\r\n" % loop_offset)
+            print("Wrote to file")
+
+    def loop_track(filename):
         try:
-            while True:
-                out.play(self.frames[i])
-                i += 1
-                if i == loop_offset:
-                    i = start_offset
-        except KeyboardInterrupt:
-            print() # so that the program ends on a newline
+            # Load the file
+            print("Loading {}...".format(filename))
+            track = MusicFile(filename)
+            track.calculate_max_frequencies()
+            start_offset, best_offset, best_corr = track.find_loop_point()
+            print("Found loop from {} back to {} ({:.0f}% match)".format(
+                track.time_of_frame(best_offset),
+                track.time_of_frame(start_offset),
+                best_corr * 100))
+            track.write_points_to_file(start_offset, best_offset)
+
+        except (TypeError, FileNotFoundError) as e:
+            print("Error: {}".format(e))
 
 
-def loop_track(filename):
-    try:
-        # Load the file 
-        print("Loading {}...".format(filename))
-        track = MusicFile(filename)
-        track.calculate_max_frequencies()
-        start_offset, best_offset, best_corr = track.find_loop_point()
-        print("Playing with loop from {} back to {} ({:.0f}% match)".format(
-            track.time_of_frame(best_offset),
-            track.time_of_frame(start_offset),
-            best_corr * 100))
-        print("(press Ctrl+C to exit)")
-        track.play_looping(start_offset, best_offset)
-
-    except (TypeError, FileNotFoundError) as e:
-        print("Error: {}".format(e))
-
-
-if __name__ == '__main__':
-    # Load the file
-    if len(sys.argv) == 2:
-        loop_track(sys.argv[1])
-    else:
-        print("Error: No file specified.",
-                "\nUsage: python3 loop.py file.mp3")
+    if __name__ == '__main__':
+        # Load the file
+        if len(sys.argv) == 2:
+            loop_track(sys.argv[1])
+        else:
+            print("Error: No file specified.",
+                    "\nUsage: python3 loop.py file.mp3")
