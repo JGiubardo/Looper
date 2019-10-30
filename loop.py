@@ -1,7 +1,7 @@
 import os
-import sys
 import numpy as np
-from mpg123 import Mpg123, Out123
+from mpg123 import Mpg123
+
 
 class MusicFile:
     def __init__(self, filename):
@@ -120,7 +120,7 @@ class MusicFile:
                     best_end = end
                     max_corr = sc
 
-        return (best_start, best_end, max_corr)
+        return best_start, best_end, max_corr
 
     def time_of_frame(self, frame):
         samples_per_sec = self.rate * self.channels
@@ -130,48 +130,10 @@ class MusicFile:
 
         frames_per_sec = samples_per_sec / samples_per_frame
         time_sec = frame / frames_per_sec
+        return time_sec
 
-        return "{:02.0f}:{:06.3f}".format(
-                time_sec // 60,
-                time_sec % 60
-                )
-
-    def play_looping(self, start_offset, loop_offset):
-        out = Out123()
-        out.start(self.rate, self.channels, self.encoding)
-        i = 0
-        try:
-            while True:
-                out.play(self.frames[i])
-                i += 1
-                if i == loop_offset:
-                    i = start_offset
-        except KeyboardInterrupt:
-            print() # so that the program ends on a newline
-
-
-def loop_track(filename):
-    try:
-        # Load the file 
-        print("Loading {}...".format(filename))
-        track = MusicFile(filename)
-        track.calculate_max_frequencies()
-        start_offset, best_offset, best_corr = track.find_loop_point()
-        print("Playing with loop from {} back to {} ({:.0f}% match)".format(
-            track.time_of_frame(best_offset),
-            track.time_of_frame(start_offset),
-            best_corr * 100))
-        print("(press Ctrl+C to exit)")
-        track.play_looping(start_offset, best_offset)
-
-    except (TypeError, FileNotFoundError) as e:
-        print("Error: {}".format(e))
-
-
-if __name__ == '__main__':
-    # Load the file
-    if len(sys.argv) == 2:
-        loop_track(sys.argv[1])
-    else:
-        print("Error: No file specified.",
-                "\nUsage: python3 loop.py file.mp3")
+    def sample_of_frame(self, frame):
+        # NOTE: division by 2 assumes 16-bit encoding
+        samples_per_frame = len(self.frames[1]) / 2 / self.channels
+        sample = frame * samples_per_frame
+        return sample
