@@ -136,4 +136,4 @@ class MusicFile:
         # NOTE: division by 2 assumes 16-bit encoding
         samples_per_frame = len(self.frames[1]) / 2 / self.channels
         sample = frame * samples_per_frame
-        return sample
+        return int(sample)
