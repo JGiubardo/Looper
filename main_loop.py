@@ -15,7 +15,7 @@ def loop_track(filename):
             format_time(track.time_of_frame(best_offset)),
             track.sample_of_frame(best_offset),
             best_corr * 100))
-        # write_points_to_file(track.sample_of_frame(start_offset), track.sample_of_frame(best_offset))
+        write_points_to_file(track.sample_of_frame(start_offset), track.sample_of_frame(best_offset), filename)
 
     except (TypeError, FileNotFoundError) as e:
         print("Error: {}".format(e))
@@ -28,10 +28,11 @@ def format_time(time_sec):
     )
 
 
-def write_points_to_file(start_offset, loop_offset):
-    with open("loop_points.txt","w+") as output:
-        output.write("%d\r\n" % start_offset)
-        output.write("%d\r\n" % loop_offset)
+def write_points_to_file(start_offset, loop_offset, filename):
+    with open("loop.txt", "w+") as output:
+        output.write("%d " % start_offset)
+        output.write("%d " % loop_offset)
+        output.write(filename)
         print("Wrote to file")
 
 
