@@ -3,3 +3,5 @@ venv
 
 #mp3 files (used to test the software)
 *.mp3
+
+loop.txt
