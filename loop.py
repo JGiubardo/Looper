@@ -3,6 +3,10 @@ import numpy as np
 from mpg123 import Mpg123
 
 
+class UnsuccessfulLoop(Exception):
+    pass
+
+
 class MusicFile:
     def __init__(self, filename):
         # Load the file, if it exists and is an mp3 file
@@ -99,7 +103,7 @@ class MusicFile:
                 self.max_freq[s2:s2+comp_length])
         return np.ma.sum(matches) / np.ma.count(matches)
 
-    def find_loop_point(self, start_offset=200, test_len=500):
+    def find_loop_point(self, start_offset=200, test_len=800):
         """Finds matches based on auto-correlation over a portion
         of the music track."""
 
@@ -111,16 +115,16 @@ class MusicFile:
         best_start = None
         best_end = None
 
-        for start in range(200, len(self.max_freq) - test_len,
+        for start in range(start_offset, len(self.max_freq) - test_len,
                 int(len(self.max_freq) / 10)):
-            for end in range(start + 500, len(self.max_freq) - test_len):
+            for end in range(start + test_len, len(self.max_freq) - test_len):
                 sc = self.sig_corr(start, end, test_len)
                 if sc > max_corr:
                     best_start = start
                     best_end = end
                     max_corr = sc
-        if max_corr == 0:
-            raise Exception("Couldn't locate a loop point")
+        if max_corr <= 0:
+            raise UnsuccessfulLoop
         return best_start, best_end, max_corr
 
     def time_of_frame(self, frame):
