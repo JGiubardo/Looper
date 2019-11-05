@@ -119,7 +119,8 @@ class MusicFile:
                     best_start = start
                     best_end = end
                     max_corr = sc
-
+        if max_corr == 0:
+            raise Exception("Couldn't locate a loop point")
         return best_start, best_end, max_corr
 
     def time_of_frame(self, frame):
