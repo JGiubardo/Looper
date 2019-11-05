@@ -1,4 +1,5 @@
 import sys
+import os
 from loop import MusicFile
 
 
@@ -21,6 +22,20 @@ def loop_track(filename):
         print("Error: {}".format(e))
 
 
+def loop_all_tracks():
+    files = os.listdir('.')
+    songs = []
+    for fn in files:
+        if os.path.splitext(fn)[1].lower() == '.mp3':
+            songs.append(fn)
+    if not songs:
+        print('No songs found!')
+        exit(1)
+    for filename in songs:
+        loop_track(filename)
+    print("Wrote to file")
+
+
 def format_time(time_sec):
     return "{:02.0f}:{:06.3f}".format(
         time_sec // 60,
@@ -29,17 +44,20 @@ def format_time(time_sec):
 
 
 def write_points_to_file(start_offset, loop_offset, filename):
-    with open("loop.txt", "w+") as output:
-        output.write("%d " % start_offset)
+    with open("loop.txt", "a") as output:
+        output.write("\n%d " % start_offset)
         output.write("%d " % loop_offset)
         output.write(filename)
-        print("Wrote to file")
 
 
 if __name__ == '__main__':
     # Load the file
     if len(sys.argv) == 2:
-        loop_track(sys.argv[1])
+        input_arg = sys.argv[1]
+        if input_arg == "all":
+            loop_all_tracks()
+        else:
+            loop_track(input_arg)
     else:
         print("Error: No file specified.",
               "\nUsage: python3 loop.py file.mp3")
