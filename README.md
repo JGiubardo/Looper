@@ -25,7 +25,7 @@ python3 main_loop.py track.mp3
 If track.mp3 is a valid .mp3 file, then Looper will find as good a loop
 point as it can, and will output those loop points to the terminal.
 
-If `all` is used instead of a filename, it will run on every .mp3 in the directory
+If no filename is given, or if `all` is used instead of a filename, it will run on every .mp3 in the directory.
 
 ## Limitations
 At this point, Looper only supports .mp3 files.

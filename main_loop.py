@@ -73,6 +73,8 @@ if __name__ == '__main__':
             loop_all_tracks()
         else:
             loop_track(input_arg)
+    elif len(sys.argv) == 1:
+        loop_all_tracks()
     else:
         print("Error: No file specified.",
               "\nUsage: python3 loop.py file.mp3")
