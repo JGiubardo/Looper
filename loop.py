@@ -73,14 +73,13 @@ class MusicFile:
         # since absolute magnitudes vary)
         fft_2d_denoise = np.ma.masked_where(
             (fft_2d_sub.T < fft_2d_sub.max() * 0.25),
-            fft_2d_sub.T, 0)
+            fft_2d_sub.T, False)
 
         # Finally, get the dominant frequency for each frame
         # (and mask it to omit any points where the dominant frequency is
         # just the baseline frequency)
         max_freq = frame_freq_sub[np.argmax(fft_2d_denoise, axis=0)]
-        self.max_freq = np.ma.masked_where(max_freq == frame_freq_sub[0],
-                max_freq)
+        self.max_freq = np.ma.masked_where(max_freq == frame_freq_sub[0], max_freq)
 
     def sig_corr(self, s1, s2, comp_length):
         """Calculates the auto-correlation of the track (as compressed into
@@ -99,8 +98,7 @@ class MusicFile:
         one starting at s1 and one starting at s2
         """
 
-        matches = (self.max_freq[s1:s1+comp_length] ==
-                self.max_freq[s2:s2+comp_length])
+        matches = (self.max_freq[s1:s1+comp_length] == self.max_freq[s2:s2+comp_length])
         return np.ma.sum(matches) / np.ma.count(matches)
 
     def find_loop_point(self, start_offset=200, test_len=800):
@@ -115,8 +113,7 @@ class MusicFile:
         best_start = None
         best_end = None
 
-        for start in range(start_offset, len(self.max_freq) - test_len,
-                int(len(self.max_freq) / 10)):
+        for start in range(start_offset, len(self.max_freq) - test_len, int(len(self.max_freq) / 10)):
             for end in range(start + test_len, len(self.max_freq) - test_len):
                 sc = self.sig_corr(start, end, test_len)
                 if sc > max_corr:
