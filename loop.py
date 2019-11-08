@@ -101,7 +101,7 @@ class MusicFile:
         matches = (self.max_freq[s1:s1+comp_length] == self.max_freq[s2:s2+comp_length])
         return np.ma.sum(matches) / np.ma.count(matches)
 
-    def find_loop_point(self, start_offset=200, test_len=800):
+    def find_loop_point(self, start_offset=10, test_len=600):
         """Finds matches based on auto-correlation over a portion
         of the music track."""
 
