@@ -13,27 +13,26 @@ def loop_track(filename):
     # handles errors in loading the file
     except (TypeError, FileNotFoundError) as e:
         print("Error: {}".format(e))
+        return
     # try to loop the file
     try:
         start_offset, best_offset, best_corr = track.find_loop_point()
-        print("Found loop starting at {} and ending {} ({:.0f}% match)".format(
-            format_time(track.time_of_frame(start_offset)),
-            format_time(track.time_of_frame(best_offset)),
-            best_corr * 100))
-        write_points_to_file(track.sample_of_frame(start_offset), track.sample_of_frame(best_offset), filename)
     # if a loop isn't found, retry with different inputs
     except UnsuccessfulLoop:
         try:
             print("Trying again")
             start_offset, best_offset, best_corr = track.find_loop_point(10, 200)
-            print("Found loop starting at {} and ending {} ({:.0f}% match)".format(
-                format_time(track.time_of_frame(start_offset)),
-                format_time(track.time_of_frame(best_offset)),
-                best_corr * 100))
-            write_points_to_file(track.sample_of_frame(start_offset), track.sample_of_frame(best_offset), filename)
+
         # if a loop still isn't found, give up
         except UnsuccessfulLoop:
             print("Failed to find loop")
+            return
+
+    print("Found loop starting at {} and ending {} ({:.0f}% match)".format(
+        format_time(track.time_of_frame(start_offset)),
+        format_time(track.time_of_frame(best_offset)),
+        best_corr * 100))
+    write_points_to_file(track.sample_of_frame(start_offset), track.sample_of_frame(best_offset), filename)
 
 
 def loop_all_tracks():
