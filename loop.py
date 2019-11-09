@@ -108,23 +108,39 @@ class MusicFile:
         # Using heuristics for the test length and "loop to" point.
         # NOTE: this algorithm is arbitrary and could certainly be improved,
         # especially for cases where the loop point is not totally clear
+
+        # Number of points to test for start, the larger the number, the more points
+        # will be tested giving a better loop, but also taking longer to calculate
+        num_start_iterations = 25
+
         max_corr = 0
         best_start = None
         best_end = None
         max_end = len(self.max_freq)-test_len
-        for start in range(start_offset, max_end-test_len, int((max_end-test_len-start_offset) / 25)):
+        step = int((max_end-test_len-start_offset) / num_start_iterations)
+        for start in range(start_offset, max_end-test_len, step):
             for end in range(start + test_len, max_end):
-                sc = self.sig_corr(start, end, test_len)
-                if sc > max_corr:
-                    # Uses a slight bias to prefer earlier loop points, this keeps filesize down
-                    if best_start is None or \
-                            np.exp(-.002 * self.time_of_frame(end))*sc > \
-                            np.exp(-.002 * self.time_of_frame(best_end))*max_corr:
-                        best_start = start
-                        best_end = end
-                        max_corr = sc
+                best_start, best_end, max_corr = self.test_points(start, end, test_len, max_corr, best_start, best_end)
         if max_corr <= 0:
             raise UnsuccessfulLoop
+        return best_start, best_end, max_corr
+
+    def test_points(self, start, end, test_len, max_corr, best_start, best_end):
+        """Tests a particular set of start and end points against the stored current best
+        If these points are better than the current best, then make them the new best"""
+        # Uses a slight bias to prefer earlier loop points, this keeps filesize down
+        # Default of -0.0003 gives 96.5% after 2 minutes, 91% after 5 minutes
+        bias = -0.0003
+
+        sc = self.sig_corr(start, end, test_len)
+        if sc > max_corr:
+            # Check against bias, protecting against unassigned values first
+            if best_start is None or \
+                    np.exp(bias * self.time_of_frame(end)) * sc > \
+                    np.exp(bias * self.time_of_frame(best_end)) * max_corr:
+                best_start = start
+                best_end = end
+                max_corr = sc
         return best_start, best_end, max_corr
 
     def time_of_frame(self, frame):
