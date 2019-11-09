@@ -25,7 +25,7 @@ def loop_track(filename):
     except UnsuccessfulLoop:
         try:
             print("Trying again")
-            start_offset, best_offset, best_corr = track.find_loop_point(100, 200)
+            start_offset, best_offset, best_corr = track.find_loop_point(10, 200)
             print("Found loop starting at {} and ending {} ({:.0f}% match)".format(
                 format_time(track.time_of_frame(start_offset)),
                 format_time(track.time_of_frame(best_offset)),

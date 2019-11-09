@@ -101,25 +101,28 @@ class MusicFile:
         matches = (self.max_freq[s1:s1+comp_length] == self.max_freq[s2:s2+comp_length])
         return np.ma.sum(matches) / np.ma.count(matches)
 
-    def find_loop_point(self, start_offset=10, test_len=600):
+    def find_loop_point(self, start_offset=0, test_len=600):
         """Finds matches based on auto-correlation over a portion
         of the music track."""
 
         # Using heuristics for the test length and "loop to" point.
         # NOTE: this algorithm is arbitrary and could certainly be improved,
         # especially for cases where the loop point is not totally clear
-
         max_corr = 0
         best_start = None
         best_end = None
-
-        for start in range(start_offset, len(self.max_freq) - test_len, int(len(self.max_freq) / 10)):
-            for end in range(start + test_len, len(self.max_freq) - test_len):
+        max_end = len(self.max_freq)-test_len
+        for start in range(start_offset, max_end-test_len, int((max_end-test_len-start_offset) / 25)):
+            for end in range(start + test_len, max_end):
                 sc = self.sig_corr(start, end, test_len)
                 if sc > max_corr:
-                    best_start = start
-                    best_end = end
-                    max_corr = sc
+                    # Uses a slight bias to prefer earlier loop points, this keeps filesize down
+                    if best_start is None or \
+                            np.exp(-.002 * self.time_of_frame(end))*sc > \
+                            np.exp(-.002 * self.time_of_frame(best_end))*max_corr:
+                        best_start = start
+                        best_end = end
+                        max_corr = sc
         if max_corr <= 0:
             raise UnsuccessfulLoop
         return best_start, best_end, max_corr
