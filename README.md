@@ -23,7 +23,9 @@ python3 main_loop.py track.mp3
 ```
 
 If track.mp3 is a valid .mp3 file, then Looper will find as good a loop
-point as it can, and will output those loop points to the terminal.
+point as it can, and will output those loop points to the terminal and the `loop.txt` file.  This file can be read by
+[Looping Audio Converter](https://github.com/libertyernie/LoopingAudioConverter/releases) to create a looped audio 
+`.brstm` file when processing a song.
 
 If no filename is given, or if `all` is used instead of a filename, it will run on every .mp3 in the directory.
 
