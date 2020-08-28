@@ -20,11 +20,8 @@ pip install -r requirements.txt
   ```
 
 ## mpg123
- To install the library on Windows use the mpg123 downloads page: https://www.mpg123.de/download.shtml
- 
- In the section marked `Win32 and Win64 Binaries` follow the link to compiled binaries marked as **for 64 bit**. 
- Download the version that is in the form of `mpg123-[VERSION]-x86-64.zip`. Extract the zip and select `libmpg123-0.dll`
- copy this file. In Windows File Explorer navigate to `C:\Windows` and paste this file into the folder.
+ To install the library on Windows use the included dll. Find `libmpg123-0.dll` included in this download, and copy it.
+   In Windows File Explorer navigate to `C:\Windows` and paste this file into the folder (or any other folder .
  
 ## Using the program 
  Double clicking `main_loop.py` will cause it to run on every mp3 in the folder. From command prompt it can run on 
