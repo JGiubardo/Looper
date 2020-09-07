@@ -43,7 +43,7 @@ def loop_all_tracks():
             songs.append(fn)
     if not songs:
         print('No songs found!')
-        exit(1)
+        sys.exit(1)
     for filename in songs:
         loop_track(filename)
     print("Wrote to file")
